@@ -21,9 +21,10 @@
 
 <script>
 
-var WIDTH = 1200;
-var HEIGHT = WIDTH/2;
-var MAXLEVEL = 3;
+var WIDTH = 600;
+    //HEIGHT = WIDTH/2
+    ORDEN = 3;
+    MAXLEVEL = 3;
 
 
 function randomInt(min, max) {
@@ -33,37 +34,47 @@ function randomInt(min, max) {
 function gen_frac(semilla) {
     var cuadros = [];
     function gencuadros(nivel, ind, x0, y0, tam) {
-        console.log(ind)
+        //console.log(ind)
         if (nivel > MAXLEVEL) {
             cuadros.push({"nivel":nivel, "ind":ind, "x0":x0, "y0":y0, "tam":tam});
             return;
         }
 
         var nnivel = nivel + 1;
-        var ntam = tam / 3;
+        var ntam = tam / ORDEN;
 
-        if (semilla[0]==1) {gencuadros(nnivel, 1, x0+0*ntam, y0+0*ntam, ntam)}
-        if (semilla[1]==1) {gencuadros(nnivel, 2, x0+1*ntam, y0+0*ntam, ntam)}
-        if (semilla[2]==1) {gencuadros(nnivel, 3, x0+2*ntam, y0+0*ntam, ntam)}
-        if (semilla[3]==1) {gencuadros(nnivel, 4, x0+0*ntam, y0+1*ntam, ntam)}
-        if (semilla[4]==1) {gencuadros(nnivel, 5, x0+1*ntam, y0+1*ntam, ntam)}
-        if (semilla[5]==1) {gencuadros(nnivel, 6, x0+2*ntam, y0+1*ntam, ntam)}
-        if (semilla[6]==1) {gencuadros(nnivel, 7, x0+0*ntam, y0+2*ntam, ntam)}
-        if (semilla[7]==1) {gencuadros(nnivel, 8, x0+1*ntam, y0+2*ntam, ntam)}
-        if (semilla[8]==1) {gencuadros(nnivel, 9, x0+2*ntam, y0+2*ntam, ntam)}
+
+        for (var i=0; i < ORDEN; i++) {
+            for (var j=0; j < ORDEN; j++) {
+                var ind = ORDEN*i + j;
+                if (semilla[ind]==1) {
+                    gencuadros(nnivel, ind, x0+i*ntam, y0+j*ntam, ntam);
+                }
+            }
+        }
+
     }
     gencuadros(0, 0, 0, 0, 1);
     return cuadros;
 }
 
 var esc = d3.scale.linear()
-    .range([0, HEIGHT]);
+    .range([0, WIDTH]);
 
-
-var svg = d3.select('#c2d').append('svg')
+// Fractal
+var svgfrac = d3.select('#c2d').append('svg')
     .attr({
       'width': WIDTH,
-      'height': HEIGHT,
+      'height': WIDTH,
+      'class': "frac"
+    });
+
+
+var svgctrl = d3.select('#c2d').append('svg')
+    .attr({
+      'width': WIDTH/2,
+      'height': WIDTH/2,
+      'class': "ctrl"        
     });
 
 var texto = d3.select('#c2d').append( "text")
@@ -75,7 +86,7 @@ var texto = d3.select('#c2d').append( "text")
 ;
 
 function update(semilla) {
-    svg.selectAll('rect.sem')
+    svgfrac.selectAll('rect.sem')
         .remove();
 
     data = gen_frac(semilla);
@@ -84,9 +95,10 @@ function update(semilla) {
     .domain([0, data.length])
     .range([0, 360]);
 
-    texto.text(data.length + " objetos, semilla: " + semilla);
+    var nummax = Math.pow(ORDEN*ORDEN, MAXLEVEL+1);
+    texto.text("Orden: " + ORDEN + " | Nivel: " + MAXLEVEL + " | Semilla: " + semilla  + "  | Objetos: " + data.length + " de " + nummax + " | Densidad: " + data.length/nummax);
     // Data join
-    var frac = svg.selectAll('rect.sem')
+    var frac = svgfrac.selectAll('rect.sem')
         .data(data);
     // ENTER
     frac.enter()
@@ -114,10 +126,10 @@ function update(semilla) {
 
 };
 
-update([1,0,1,0,1,0,1,0,1]);
+update(sem_aleat());
 
 function sem_aleat() {
-    return d3.range(9).map(function() {return Math.round(Math.random());});
+    return d3.range(ORDEN*ORDEN).map(function() {return Math.round(Math.random());});
 }
 
 
