@@ -19,22 +19,18 @@
 <div id='c2d' class="vis"></div>
 
 
+
 <script>
 
 var WIDTH = 600;
 var HEIGHT = WIDTH/2;
-var MAXLEVEL = 3
+var MAXLEVEL = 3;
 
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-var svg = d3.select('#c2d').append('svg')
-    .attr({
-      'width': WIDTH,
-      'height': HEIGHT,
-    });
 
 
 var esc = d3.scale.linear()
@@ -54,11 +50,10 @@ console.log(semilla)
 var cuadros = [];
 
 function gencuadros(sem, nivel, ind, x0, y0, tam) {
-	console.log(nivel)
-	if (nivel > MAXLEVEL) {
-		cuadros.push({"nivel":nivel, "ind":ind, "x0":x0, "y0":y0, "tam":tam});
-		return;
-	}
+
+    cuadros.push({"nivel":nivel, "ind":ind, "x0":x0, "y0":y0, "tam":tam});
+
+    if (nivel > MAXLEVEL) {return;}
 
     var nnivel = nivel + 1;
     var ntam = tam / 3;
@@ -79,6 +74,23 @@ function gencuadros(sem, nivel, ind, x0, y0, tam) {
 gencuadros(semilla, 0, 0, 0, 0, 1)
 
 console.log(cuadros)
+
+
+
+
+d3.select('#c2d').append( "text")
+    .attr({
+        'text-anchor'   : 'middle',
+        y               : 10
+    })
+    .text(cuadros.length + " objetos")
+;
+
+var svg = d3.select('#c2d').append('svg')
+    .attr({
+      'width': WIDTH,
+      'height': HEIGHT,
+    });
 
 var esccol = d3.scale.linear()
     .domain([0, cuadros.length])
