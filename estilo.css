@@ -1,0 +1,51 @@
+body{
+    margin:auto;
+    width: 100%;
+    background: #F0F0F0;
+    font: normal normal normal 14px/20px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: rgb(85, 85, 85);
+
+}
+.header {
+    abox-shadow: rgba(0, 0, 0, 0.0980392) 0px -1px 0px 0px inset, rgba(0, 0, 0, 0.0980392) 0px 1px 10px 0px;
+    text-align: center;
+    height:60px;
+    line-height:20px;
+    width: 100%;
+    background: #DDDDEE;
+    border:1px solid #CCC;
+    margin:10px auto;
+    color: rgb(85, 85, 120);
+}
+.content {
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px -1px 0px 0px inset, rgba(0, 0, 0, 0.0980392) 0px 1px 10px 0px;
+    background: #FFFFFF;
+    border: 1px solid #CCC;
+    padding: 20px;
+    margin: auto auto;
+width: 90%;
+}
+
+.vis {
+    width: 100%;
+}
+
+ .frac {
+    background: hsl(0, 0%, 0%);
+    margin: 30px 30px;
+}
+
+ svg:hover {
+  outline: 1px dashed #BBB;
+
+}
+
+ .ctrl {
+  outline: 1px solid #BBB;
+
+}
+
+.on {
+  fill: hsl(0, 0%, 90%);;
+outline: 1px solid #000;
+}
