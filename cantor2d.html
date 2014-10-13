@@ -48,7 +48,7 @@ var cuadros = [];
 function gencuadros(sem, nivel, ind, x0, y0, tam) {
 
     cuadros.push({"nivel":nivel, "ind":ind, "x0":x0, "y0":y0, "tam":tam});
-    console.log(nivel)
+    //console.log(nivel)
     if (nivel >= MAXLEVEL) {return;}
 
     var nnivel = nivel + 1;
@@ -74,6 +74,9 @@ console.log(cuadros)
 
 
 
+var esccoln = d3.scale.linear()
+    .domain([0, MAXLEVEL])
+    .range([0, 360]);
 
 
 var esccol = d3.scale.linear()
@@ -98,8 +101,9 @@ var frac = svg.selectAll('rect.frac')
     .data(cuadros)
   .enter().append('rect')
     .attr("class", "frac")
-    .attr("width", 1)
-    .attr("height", 1)
+    //.attr("width", 1)
+    //.attr("height", 1)
+.style("fill", function(d,i) { return "hsl(" + Math.random()*360 + ",70%,50%,50%)"; })
     .attr("x", function() {return WIDTH*(Math.random());})
     .attr("y", function() {return HEIGHT*(Math.random());})
     .attr("x", function(d,i) { return esc(d.x0);})
@@ -107,10 +111,10 @@ var frac = svg.selectAll('rect.frac')
     .transition()
     .attr("height", function(d,i) { return esc(d.tam);})
     .attr("width", function(d,i) { return esc(d.tam);})
-    .style("fill", function(d,i) { return "hsl(" + esccol(i) + ",70%,50%,50%)"; })
-    .attr("opacity", "0.5")
+    .style("fill", function(d,i) { return "hsl(" + Math.random()*360 + ",70%,50%,50%)"; })
+    //.attr("opacity", "1")
     .duration(3000)
-    .delay(function(d, i) { return i / cuadros.length * 000; })
+    .delay(function(d, i) { return i / cuadros.length * 3000; })
 ;
 
 
