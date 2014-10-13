@@ -31,18 +31,18 @@ function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function gen_frac(semilla) {
+function gen_frac(orden, semilla, nivelmax) {
     var cuadros = [];
+    nivel = 0
     function gencuadros(nivel, ind, x0, y0, tam) {
         //console.log(ind)
-        if (nivel > MAXLEVEL) {
+        if (nivel > nivelmax) {
             cuadros.push({"nivel":nivel, "ind":ind, "x0":x0, "y0":y0, "tam":tam});
             return;
         }
 
         var nnivel = nivel + 1;
         var ntam = tam / ORDEN;
-
 
         for (var i=0; i < ORDEN; i++) {
             for (var j=0; j < ORDEN; j++) {
@@ -74,7 +74,7 @@ var svgctrl = d3.select('#c2d').append('svg')
     .attr({
       'width': WIDTH/2,
       'height': WIDTH/2,
-      'class': "ctrl"        
+      'class': "ctrl"
     });
 
 var texto = d3.select('#c2d').append( "text")
@@ -89,7 +89,21 @@ function update(semilla) {
     svgfrac.selectAll('rect.sem')
         .remove();
 
-    data = gen_frac(semilla);
+    var ctrl = svgctrl.selectAll('rect')
+      .data(gen_frac(ORDEN, semilla, 0));
+
+    ctrl.enter()
+      .append('rect');
+
+    ctrl.attr("height", function(d,i) { return esc(d.tam/2);})
+        .attr("width", function(d,i) { return esc(d.tam/2);})
+        //.style("fill", function(d,i) { return "hsl(" + esccol(i) + ",70%,50%)"; })
+        .attr("x", function(d,i) { return esc(d.x0/2);})
+        .attr("y", function(d,i) { return esc(d.y0/2);})
+        ;
+    ctrl.exit().remove()
+
+    data = gen_frac(ORDEN, semilla, MAXLEVEL);
     //TODO: Sacar a closure
     var esccol = d3.scale.linear()
     .domain([0, data.length])
@@ -98,7 +112,7 @@ function update(semilla) {
     var nummax = Math.pow(ORDEN*ORDEN, MAXLEVEL+1);
     texto.text("Orden: " + ORDEN + " | Nivel: " + MAXLEVEL + " | Semilla: " + semilla  + "  | Objetos: " + data.length + " de " + nummax + " | Densidad: " + data.length/nummax);
     // Data join
-    var frac = svgfrac.selectAll('rect.sem')
+    var frac = svgfrac.selectAll('rect')
         .data(data);
     // ENTER
     frac.enter()
@@ -114,7 +128,6 @@ function update(semilla) {
         //.delay(function(d, i) { return d.ind / semilla.length * 2000; });
 
     frac
-        .attr("class", "sem")
         .style("fill", function(d,i) { return "hsl(" + esccol(i) + ",70%,50%)"; })
         .attr("x", function(d,i) { return esc(d.x0);})
         .attr("y", function(d,i) { return esc(d.y0);})
