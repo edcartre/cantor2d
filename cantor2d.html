@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  <title>D3::Cantor 2D</title>
+  <link href="estilo.css" media="all" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+<div class="header">
+<h1>D3::Cantor 2D</h1>
+</div>
+
+<div class="content">
+
+<div id='c2d' class="vis"></div>
+
+
+<script>
+
+var WIDTH = 600;
+    ORDEN = 3;
+    MAXLEVEL = 3;
+
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function gen_frac(orden, semilla, nivelmax) {
+    var cuadros = [];
+    nivel = 0;
+    function gencuadros(nivel, ind, x0, y0, tam, st, ido) {
+        //console.log(ind)
+        if (nivel > nivelmax) {
+            cuadros.push({"nivel":nivel, "ind":ind, "x0":x0, "y0":y0, "tam":tam, "st":st, "ido":ido});
+            return;
+        }
+                
+        var nnivel = nivel + 1;
+        var ntam = tam / ORDEN;
+
+        for (var j=0; j < ORDEN; j++) {
+            for (var i=0; i < ORDEN; i++) {
+                var nind = ORDEN*j + i;
+                var nido = ido + nind.toString() + ":";            
+                gencuadros(nnivel, nind, x0 + i*ntam, y0 + j*ntam, ntam, st? semilla[nind]:0, nido);
+            }
+        }
+
+    };
+    gencuadros(0, 0, 0, 0, 1, 1, "");
+    return cuadros;
+}
+
+var esc = d3.scale.linear()
+    .range([0, WIDTH]);
+
+// Fractal
+    
+var texto = d3.select('#c2d').append( "text")
+    .attr({
+        'text-anchor'   : 'middle',
+        y               : 10
+    })
+;    
+    
+var svgfrac = d3.select('#c2d').append('svg')
+    .attr({
+      'width': WIDTH,
+      'height': WIDTH,
+      'class': "frac"
+    });
+
+
+var svgctrl = d3.select('#c2d').append('svg')
+    .attr({
+      'width': WIDTH/2,
+      'height': WIDTH/2,
+      'class': "ctrl"
+    });
+
+
+
+var semilla = sem_aleat();
+
+// Control
+var ctrl = svgctrl.selectAll('rect')
+  .data(gen_frac(ORDEN, semilla, 0));
+
+ctrl.enter()
+  .append('rect')
+    .attr("height", function(d,i) { return esc(d.tam/2);})
+    .attr("width", function(d,i) { return esc(d.tam/2);})
+    .attr("x", function(d,i) { return esc(d.x0/2);})
+    .attr("y", function(d,i) { return esc(d.y0/2);})
+    .attr('class', function (d, i) {return d.st? "on" : "off";})
+  .on("click", function (d, i) {
+    d.st = d.st? 0: 1 ;
+    semilla[i] = d.st;
+    console.log(semilla);
+    d3.select(this).attr('class', d.st? "on" : "off");
+    update();})
+;
+
+
+
+
+function update() {
+
+	var cuadros = gen_frac(ORDEN, semilla, MAXLEVEL)
+                         .filter(function(d) { return d.st  });
+
+    var esccol = d3.scale.linear()
+    .domain([0, cuadros.length])
+    .range([0, 360]);
+
+    var nummax = Math.pow(ORDEN*ORDEN, MAXLEVEL+1);
+    texto.text("Orden: " + ORDEN + " | Nivel: " + MAXLEVEL + " | Semilla: " + semilla  + "  | Objetos: " + cuadros.length + "/" + nummax + " | Densidad: " + cuadros.length/nummax);
+
+	// Fractal
+
+    // Data join
+    var frac = svgfrac.selectAll('rect.frac')
+        .data(cuadros, function(d, i) {return d.ido;});
+    // ENTER
+    frac.enter()
+      .append('rect')
+		.attr('class', 'frac')
+        .attr("width", 0)
+        .attr("height", 0)
+        .transition()
+        .attr("height", function(d,i) { return esc(d.tam);})
+        .attr("width", function(d,i) { return esc(d.tam);})
+        .ease("bounce")
+        .duration(1000)
+        .delay(function(d, i) { return i / cuadros.length * 1000; });
+
+    frac
+        .style("fill", function(d,i) { return "hsl(" + esccol(i) + ",70%,50%)"; })
+        .attr("x", function(d,i) { return esc(d.x0);})
+        .attr("y", function(d,i) { return esc(d.y0);})
+    ;
+
+    frac.exit()
+        .transition()
+        .attr("width", 0)
+        .attr("height", 0)
+        .ease("bounce")
+        .duration(1000)
+        .delay(function(d, i) { return i / cuadros.length * 1000; })
+        .remove()
+    ;
+
+};
+
+
+function sem_aleat() {
+    return d3.range(ORDEN*ORDEN).map(function() {return Math.round(Math.random());});
+};
+
+update();
+
+
+
+</script>
+
+</content>
+</body>
+</html>
