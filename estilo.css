@@ -35,17 +35,20 @@ width: 90%;
     margin: 30px 30px;
 }
 
- svg:hover {
+ svg.frac:hover {
   outline: 1px dashed #BBB;
 
 }
 
- .ctrl {
-  outline: 1px solid #BBB;
+ .ctrl rect{
+  outline: 1px solid #888;
 
 }
 
-.on {
-  fill: hsl(0, 0%, 90%);;
-outline: 1px solid #000;
+.ctrl .on {
+  fill: hsl(0, 0%, 90%);
 }
+.ctrl rect:hover {
+    fill: hsl(0, 0%, 50%);
+}
+

@@ -44,9 +44,9 @@ function gen_frac(orden, semilla, nivelmax) {
         var nnivel = nivel + 1;
         var ntam = tam / ORDEN;
 
-        for (var i=0; i < ORDEN; i++) {
-            for (var j=0; j < ORDEN; j++) {
-                var nind = ORDEN*i + j;
+        for (var j=0; j < ORDEN; j++) {
+            for (var i=0; i < ORDEN; i++) {
+                var nind = ORDEN*j + i;
                 gencuadros(nnivel, nind, x0 + i*ntam, y0 + j*ntam, ntam, st? semilla[nind]:0);
             }
         }
@@ -83,38 +83,35 @@ var texto = d3.select('#c2d').append( "text")
 
 ;
 
-function update(semilla) {
-    svgfrac.selectAll('rect.frac')
-		.data([[]]).exit()
-        //.transition()
-        //.attr("width", 0)
-        //.attr("height", 0)
-        //.duration(500)
-        //.delay(function(d, i) { return i / cuadros.length * 2000; })		
-		//.delay(2000)		
-		.remove();
-	
-    
-	
-	// Control
-    var ctrl = svgctrl.selectAll('rect')
-      .data(gen_frac(ORDEN, semilla, 0));
+var semilla = sem_aleat();
 
-    ctrl.enter()
-      .append('rect')
+// Control
+var ctrl = svgctrl.selectAll('rect')
+  .data(gen_frac(ORDEN, semilla, 0));
+
+ctrl.enter()
+  .append('rect')
+    .attr("height", function(d,i) { return esc(d.tam/2);})
+    .attr("width", function(d,i) { return esc(d.tam/2);})
+    .attr("x", function(d,i) { return esc(d.x0/2);})
+    .attr("y", function(d,i) { return esc(d.y0/2);})
+    .attr('class', function (d, i) {return d.st? "on" : "off";})
+  .on("click", function (d, i) {
+    d.st = d.st? 0: 1 ;
+    semilla[i] = d.st;
+    console.log(semilla);
+    d3.select(this).attr('class', d.st? "on" : "off");
+    update();})
+;
 
 
-    ctrl
-	    .attr('class', function (d, i){return d.st? "on":"off"})
-		.attr("height", function(d,i) { return esc(d.tam/2);})
-        .attr("width", function(d,i) { return esc(d.tam/2);})
-        .attr("x", function(d,i) { return esc(d.x0/2);})
-        .attr("y", function(d,i) { return esc(d.y0/2);})
-        ;
-    ctrl.exit().remove();
-    
-	var cuadros = gen_frac(ORDEN, semilla, MAXLEVEL).filter(function(d) { return d.st  });
-    
+
+
+function update() {
+
+	var cuadros = gen_frac(ORDEN, semilla, MAXLEVEL)
+                         .filter(function(d) { return d.st  });
+
     var esccol = d3.scale.linear()
     .domain([0, cuadros.length])
     .range([0, 360]);
@@ -123,13 +120,13 @@ function update(semilla) {
     texto.text("Orden: " + ORDEN + " | Nivel: " + MAXLEVEL + " | Semilla: " + semilla  + "  | Objetos: " + cuadros.length + " de " + nummax + " | Densidad: " + cuadros.length/nummax);
 
 	// Fractal
-	
+
     // Data join
     var frac = svgfrac.selectAll('rect.frac')
         .data(cuadros);
     // ENTER
     frac.enter()
-      .append('rect')        
+      .append('rect')
 		.attr('class', 'frac')
         .attr("width", 0)
         .attr("height", 0)
@@ -146,7 +143,7 @@ function update(semilla) {
         .attr("y", function(d,i) { return esc(d.y0);})
     ;
 
-    //frac.exit().remove();
+    frac.exit().remove();
 
 
 };
@@ -156,16 +153,10 @@ function sem_aleat() {
     return d3.range(ORDEN*ORDEN).map(function() {return Math.round(Math.random());});
 };
 
-update(sem_aleat());
+update();
 
- 
-setInterval(function () {
-	var sem = sem_aleat();
-	update(sem);
-	console.log(sem)
-	}, 10000);
- 
- 
+
+
 </script>
 
 </content>
