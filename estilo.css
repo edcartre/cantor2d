@@ -33,16 +33,24 @@ width: 90%;
  .frac {
     background: hsl(0, 0%, 0%);
     margin: 30px 30px;
+
 }
 
  svg.frac:hover {
   outline: 1px dashed #BBB;
 
 }
+ svg.ctrl {
+  outline: 3px solid #082a46;
 
+}
  .ctrl rect{
   outline: 1px solid #888;
 
+}
+
+ .frac rect{
+    jshape-rendering: crispedges;
 }
 
 .ctrl .on {
