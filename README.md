@@ -1,7 +1,7 @@
 cantor2d
 ========
 
-A Cantor dust fractal generalization implemented in D3.
+An interactive Cantor dust fractal generalization implemented in D3.
 
 This is a little experiment to teach myself to code visualizations with the [D3.js](http://d3js.org/) library. 
 
