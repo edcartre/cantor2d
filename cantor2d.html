@@ -21,9 +21,10 @@
 
 <script>
 
-var WIDTH = 600;
-    ORDEN = 3;
-    MAXLEVEL = 3;
+var WIDTH = 600,
+    ORDEN = 3,
+    MAXLEVEL = 3,
+    TRANS_TIME = 500;
 
 
 function randomInt(min, max) {
@@ -61,13 +62,7 @@ var esc = d3.scale.linear()
 
 // Fractal
     
-var texto = d3.select('#c2d').append( "text")
-    .attr({
-        'text-anchor'   : 'middle',
-        y               : 10
-    })
-;    
-    
+  
 var svgfrac = d3.select('#c2d').append('svg')
     .attr({
       'width': WIDTH,
@@ -79,11 +74,11 @@ var svgfrac = d3.select('#c2d').append('svg')
 var svgctrl = d3.select('#c2d').append('svg')
     .attr({
       'width': WIDTH/2,
-      'height': WIDTH/2,
+      'height': WIDTH,
       'class': "ctrl"
     });
 
-
+  
 
 var semilla = sem_aleat();
 
@@ -118,40 +113,61 @@ function update() {
     .domain([0, cuadros.length])
     .range([0, 360]);
 
-    var nummax = Math.pow(ORDEN*ORDEN, MAXLEVEL+1);
-    texto.text("Orden: " + ORDEN + " | Nivel: " + MAXLEVEL + " | Semilla: " + semilla  + "  | Objetos: " + cuadros.length + "/" + nummax + " | Densidad: " + cuadros.length/nummax);
+    
+    // Textos
+    var frm = d3.format("0.2f");
+    
+    var msgs = [ {t:"Orden", v:ORDEN},
+                 {t:"Nivel", v:MAXLEVEL}, 
+                 {t:"Semilla", v:semilla}, 
+                 {t:"Objetos", v:cuadros.length},
+                 {t:"Densidad", v:frm(cuadros.length/Math.pow(ORDEN*ORDEN, MAXLEVEL+1))}
+               ];
+    
+    textos = svgctrl.selectAll('text')
+        .data(msgs);
+    
+    textos
+        .enter()
+            .append('text');
 
+    textos
+        .text(function (d) {return d.t + ": " + d.v;})
+        .attr('y', function (d, i) {return WIDTH/2 + 20*(i+1)})
+        .attr('x', 20)
+    ;
+    
 	// Fractal
 
     // Data join
     var frac = svgfrac.selectAll('rect.frac')
-        .data(cuadros, function(d, i) {return d.ido;});
-    // ENTER
+        .data(cuadros, function(d, i) {return d.ido;});        
+
+    // Enter
     frac.enter()
       .append('rect')
-		.attr('class', 'frac')
-        .attr("width", 0)
-        .attr("height", 0)
-        .transition()
+		.attr('class', 'frac');
+    // Enter + Update    
+    frac.transition()
+        .style("fill", function(d,i) { return "hsl(" + esccol(i) + ",70%,50%)"; })
+        .attr("x", function(d,i) { return esc(d.x0);})
+        .attr("y", function(d,i) { return esc(d.y0);}) 
         .attr("height", function(d,i) { return esc(d.tam);})
         .attr("width", function(d,i) { return esc(d.tam);})
         .ease("bounce")
-        .duration(1000)
-        .delay(function(d, i) { return i / cuadros.length * 1000; });
+        .duration(TRANS_TIME)
+        .delay(function(d, i) { return (i / cuadros.length) * TRANS_TIME/4; });
 
-    frac
-        .style("fill", function(d,i) { return "hsl(" + esccol(i) + ",70%,50%)"; })
-        .attr("x", function(d,i) { return esc(d.x0);})
-        .attr("y", function(d,i) { return esc(d.y0);})
     ;
-
+    
+    // Exit
     frac.exit()
         .transition()
         .attr("width", 0)
         .attr("height", 0)
         .ease("bounce")
-        .duration(1000)
-        .delay(function(d, i) { return i / cuadros.length * 1000; })
+        .duration(TRANS_TIME)
+        .delay(function(d, i) { return (1 - (i / cuadros.length)) * TRANS_TIME/4; })
         .remove()
     ;
 
