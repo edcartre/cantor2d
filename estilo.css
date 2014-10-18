@@ -49,14 +49,12 @@ width: 90%;
 
 }
 
- .frac rect{
-    jshape-rendering: crispedges;
-}
+
 
 .ctrl .on {
   fill: hsl(0, 0%, 90%);
 }
 .ctrl rect:hover {
-    fill: hsl(0, 0%, 50%);
+    opacity: 0.5;
 }
 
