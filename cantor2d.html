@@ -24,7 +24,7 @@
 var WIDTH = 600,
     ORDEN = 3,
     MAXLEVEL = 3,
-    TRANS_TIME = 500;
+    TRANS_TIME = 1000;
 
 
 function randomInt(min, max) {
@@ -32,15 +32,15 @@ function randomInt(min, max) {
 }
 
 function binToNum(arr){
-    return parseInt(arr.join(""), 2);        
+    return parseInt(arr.join(""), 2);
 }
-    
+
 function sem_aleat() {
     return d3.range(ORDEN*ORDEN).map(function() {return Math.round(Math.random());});
 };
 
-    
-    
+
+
 function gen_frac(orden, semilla, nivelmax) {
     var squares = [{x0:0, y0:0}];
     for (var nivel=0; nivel <= nivelmax; nivel++) {
@@ -67,13 +67,13 @@ var lensemilla = ORDEN*ORDEN,
     bfrm = d3.format("0" + lensemilla + "b");
 console.log(totsem)
 for (var sem=0; sem < totsem; sem++) {
-    var strsem = bfrm(sem);     
+    var strsem = bfrm(sem);
     lsem = d3.range(lensemilla).map(function (i) { return parseInt(strsem[i]);})
     cache[sem] = gen_frac(ORDEN, lsem, MAXLEVEL);
     console.log(sem)
-    
+
 }
-    
+
 var esc = d3.scale.linear()
     .domain([0, Math.pow(ORDEN, MAXLEVEL+1)])
     .range([0, WIDTH]);
@@ -129,12 +129,12 @@ ctrl.enter()
 ;
 
 
-
+//--------------------------------------------------------
 function update() {
 
     var cuadros;
     var numsem = binToNum(semilla);
-	
+
     if (cache[numsem]) {
         console.log("usando cache: " + numsem);
         cuadros = cache[numsem];
@@ -175,15 +175,15 @@ function update() {
 
     // Data join
     var frac = svgfrac.selectAll('rect.frac')
-        .data(cuadros, function(d, i) {return d.x0 + ":" + d.y0;});
+        .data(cuadros);
 
     // Enter
     frac.enter()
       .append('rect')
 		.attr('class', 'frac')
-        //.attr("x", WIDTH/2)
-        //.attr("y", WIDTH/2)
-        .attr("opacity", 0)
+        .attr("x", WIDTH)
+        .attr("y", WIDTH)
+        //.attr("opacity", 0)
         .attr("width", 1e-6)
         .attr("height", 1e-6)
     // Enter + Update
@@ -193,7 +193,7 @@ function update() {
         .attr("y", function(d,i) { return esc(d.y0);})
         .attr("height", function(d,i) { return esc(1);})
         .attr("width", function(d,i) { return esc(1);})
-        .attr("opacity", 1)
+        //.attr("opacity", 1)
         //.ease("bounce")
         .duration(TRANS_TIME)
         .delay(function(d, i) { return (i / cuadros.length) * TRANS_TIME/4; });
@@ -205,9 +205,9 @@ function update() {
         .transition()
         .attr("width", 1e-6)
         .attr("height", 1e-6)
-        .attr("opacity", 0)
-        //.attr("x", WIDTH/2)
-        //.attr("y", WIDTH/2)
+        //.attr("opacity", 0)
+        .attr("x", WIDTH)
+        .attr("y", WIDTH)
         //.ease("bounce")
         .duration(TRANS_TIME)
         .delay(function(d, i) { return (1 - (i / cuadros.length)) * TRANS_TIME/4; })
